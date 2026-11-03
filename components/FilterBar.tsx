@@ -62,9 +62,9 @@ export default function FilterBar({ total, apiBase = "/api" }: { total: number; 
             {sortAsc ? <ArrowUpNarrowWide className="size-4" /> : <ArrowDownWideNarrow className="size-4" />}{sortAsc ? "Oldest" : "Newest"}
           </button>
           {hasFilters && <button className="btn-ghost" onClick={() => { setText(""); set({ q: null, status: null, from: null, to: null, field: null }); }}><X className="size-4" /> Reset</button>}
-          <a href={exportHref} className="btn-primary" title="Excel-compatible CSV of all rows matching the current filters">
+          {/* <a href={exportHref} className="btn-primary" title="Excel-compatible CSV of all rows matching the current filters">
             <Download className="size-4" /> Export CSV
-          </a>
+          </a> */}
         </div>
       </div>
       <div className="mt-3 text-xs text-muted">{total.toLocaleString("en-IN")} {total === 1 ? "submission" : "submissions"} match{total === 1 ? "es" : ""}{hasFilters ? " the current filters" : ""}</div>

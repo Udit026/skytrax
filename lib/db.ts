@@ -9,11 +9,17 @@ function makePool() {
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL is not set. See .env.example.");
   const needsSsl = !/localhost|127\.0\.0\.1/.test(url) && process.env.DATABASE_SSL !== "false";
-  return new Pool({
+  const p = new Pool({
     connectionString: url,
-    max: Number(process.env.DATABASE_POOL_MAX ?? 10),
+    max: Number(process.env.DATABASE_POOL_MAX ?? 3),
+    connectionTimeoutMillis: 10000,
+    idleTimeoutMillis: 10000,
+    allowExitOnIdle: true,
     ssl: needsSsl ? { rejectUnauthorized: false } : undefined,
   });
+  // Idle-client errors would otherwise crash the process. Log the message only (never the URL/credentials).
+  p.on("error", (err) => console.error("Postgres pool error:", err.message));
+  return p;
 }
 
 export function pool(): Pool {

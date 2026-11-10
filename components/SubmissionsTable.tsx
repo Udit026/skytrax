@@ -22,7 +22,7 @@ function Thumb({ id, name, apiBase }: { id: string; name: string; apiBase: strin
     className="size-12 rounded-md object-cover border border-line bg-page" />;
 }
 
-export default function SubmissionsTable({ rows, offset, canEdit = false, basePath = "", apiBase = "/api", hideDownloads = false, hideSubmissionDate = false, hideStatus = false }: { rows: Row[]; offset: number; canEdit?: boolean; basePath?: string; apiBase?: string; hideDownloads?: boolean; hideSubmissionDate?: boolean; hideStatus?: boolean /* CLIENT-HIDE: restore by removing hideStatus */ }) {
+export default function SubmissionsTable({ rows, offset, canEdit = false, basePath = "", apiBase = "/api", hideDownloads = false, hideSubmissionDate = false, hideStatus = false, hideDateTime = false }: { rows: Row[]; offset: number; canEdit?: boolean; basePath?: string; apiBase?: string; hideDownloads?: boolean; hideSubmissionDate?: boolean; hideStatus?: boolean /* CLIENT-HIDE: restore by removing hideStatus */; hideDateTime?: boolean /* CLIENT-HIDE: restore by removing hideDateTime */ }) {
   const router = useRouter();
   const [viewer, setViewer] = useState<{ shots: Shot[]; title: string } | null>(null);
   const [loadingView, setLoadingView] = useState<string | null>(null);
@@ -111,7 +111,7 @@ export default function SubmissionsTable({ rows, offset, canEdit = false, basePa
           </tbody>
         </table>
       </div>
-      {viewer && <Lightbox shots={viewer.shots} index={0} title={viewer.title} apiBase={apiBase} hideDownloads={hideDownloads} onClose={() => setViewer(null)} />}
+      {viewer && <Lightbox shots={viewer.shots} index={0} title={viewer.title} apiBase={apiBase} hideDownloads={hideDownloads} hideDateTime={hideDateTime} onClose={() => setViewer(null)} />}
       <ConfirmDialog open={!!toDelete} busy={deleting} title="Delete this submission?"
         body={<>This permanently removes <b>{toDelete?.submission_id}</b> ({toDelete?.respondent_email}) and its {toDelete?.screenshot_count} screenshot(s) from the database and storage. This cannot be undone.</>}
         onConfirm={confirmDelete} onCancel={() => setToDelete(null)} />

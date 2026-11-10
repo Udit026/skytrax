@@ -6,7 +6,7 @@ import { fmtBytes, fmtDateTime } from "@/lib/format";
 export type Shot = { id: string; original_filename: string; file_size: number; width?: number | null; height?: number | null; uploaded_at?: string };
 
 /** Full-resolution viewer. Image is rendered with object-contain at its natural aspect ratio — never cropped. */
-export default function Lightbox({ shots, index, onClose, title, apiBase = "/api", hideDownloads = false }: { shots: Shot[]; index: number; onClose: () => void; title?: string; apiBase?: string; hideDownloads?: boolean }) {
+export default function Lightbox({ shots, index, onClose, title, apiBase = "/api", hideDownloads = false, hideDateTime = false }: { shots: Shot[]; index: number; onClose: () => void; title?: string; apiBase?: string; hideDownloads?: boolean; hideDateTime?: boolean /* CLIENT-HIDE: restore by removing hideDateTime */ }) {
   const [i, setI] = useState(index);
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -32,7 +32,8 @@ export default function Lightbox({ shots, index, onClose, title, apiBase = "/api
           <div className="text-sm font-medium truncate">{shot.original_filename}</div>
           <div className="text-xs text-white/50 truncate">
             {title ? `${title} · ` : ""}{fmtBytes(shot.file_size)}{shot.width ? ` · ${shot.width}×${shot.height}px` : ""}
-            {shot.uploaded_at ? ` · ${fmtDateTime(shot.uploaded_at)}` : ""}{shots.length > 1 ? ` · ${i + 1} of ${shots.length}` : ""}
+            {/* CLIENT-HIDE: restore by removing hideDateTime */}
+            {shot.uploaded_at && !hideDateTime ? ` · ${fmtDateTime(shot.uploaded_at)}` : ""}{shots.length > 1 ? ` · ${i + 1} of ${shots.length}` : ""}
           </div>
         </div>
         {/* CLIENT-HIDE: restore by removing hideDownloads / hideSubmissionDate */}

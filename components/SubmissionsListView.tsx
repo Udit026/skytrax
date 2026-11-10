@@ -7,10 +7,11 @@ import SubmissionsTable from "@/components/SubmissionsTable";
 import { listSubmissions, parseFilters } from "@/lib/submissions";
 
 /** All-submissions body shared by the admin app (basePath "", apiBase "/api") and the public client view. */
-export default async function SubmissionsListView({ searchParams, isAdmin, basePath = "", apiBase = "/api", hideDownloads = false, hideSubmissionDate = false, hideStatus = false }: {
+export default async function SubmissionsListView({ searchParams, isAdmin, basePath = "", apiBase = "/api", hideDownloads = false, hideSubmissionDate = false, hideStatus = false, hideDateTime = false }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>; isAdmin: boolean; basePath?: string; apiBase?: string;
   hideDownloads?: boolean; hideSubmissionDate?: boolean; // CLIENT-HIDE: restore by removing hideDownloads / hideSubmissionDate
   hideStatus?: boolean; // CLIENT-HIDE: restore by removing hideStatus
+  hideDateTime?: boolean; // CLIENT-HIDE: restore by removing hideDateTime
 }) {
   const raw = await searchParams;
   const sp = new URLSearchParams();
@@ -32,7 +33,7 @@ export default async function SubmissionsListView({ searchParams, isAdmin, baseP
                 action={isAdmin ? <Link href="/upload" className="btn-primary"><UploadCloud className="size-4" /> Upload submission</Link> : undefined} />
         ) : (
           <>
-            <SubmissionsTable rows={data.rows} offset={(data.page - 1) * data.pageSize} canEdit={isAdmin} basePath={basePath} apiBase={apiBase} hideDownloads={hideDownloads} hideSubmissionDate={hideSubmissionDate} hideStatus={hideStatus} />
+            <SubmissionsTable rows={data.rows} offset={(data.page - 1) * data.pageSize} canEdit={isAdmin} basePath={basePath} apiBase={apiBase} hideDownloads={hideDownloads} hideSubmissionDate={hideSubmissionDate} hideStatus={hideStatus} hideDateTime={hideDateTime} />
             <Pagination page={data.page} pageSize={data.pageSize} total={data.total} />
           </>
         )}

@@ -20,10 +20,11 @@ const Field = ({ label, children }: { label: string; children: React.ReactNode }
 );
 
 /** Submission detail body shared by the admin app (basePath "", apiBase "/api") and the public client view. */
-export default function SubmissionDetailView({ s, isAdmin, basePath = "", apiBase = "/api", hideDownloads = false, hideStatus = false }: {
+export default function SubmissionDetailView({ s, isAdmin, basePath = "", apiBase = "/api", hideDownloads = false, hideStatus = false, hideDateTime = false }: {
   s: DetailData; isAdmin: boolean; basePath?: string; apiBase?: string;
   hideDownloads?: boolean; // CLIENT-HIDE: restore by removing hideDownloads / hideSubmissionDate
   hideStatus?: boolean; // CLIENT-HIDE: restore by removing hideStatus
+  hideDateTime?: boolean; // CLIENT-HIDE: restore by removing hideDateTime
 }) {
   return (
     <>
@@ -41,7 +42,8 @@ export default function SubmissionDetailView({ s, isAdmin, basePath = "", apiBas
               <Field label="Submission ID"><span className="font-mono">{s.submission_id}</span></Field>
               <Field label="Email ID"><a href={`mailto:${s.respondent_email}`} className="text-brand hover:underline">{s.respondent_email}</a></Field>
               <Field label="Passenger name">{s.passenger_name || <span className="text-faint font-normal">Not provided</span>}</Field>
-              <Field label="Submitted">{fmtDateTime(s.created_at)}{isAdmin && s.created_by_name && <span className="text-muted font-normal"> · by {s.created_by_name}</span>}</Field>
+              {/* CLIENT-HIDE: restore by removing hideDateTime */}
+              {!hideDateTime && <Field label="Submitted">{fmtDateTime(s.created_at)}{isAdmin && s.created_by_name && <span className="text-muted font-normal"> · by {s.created_by_name}</span>}</Field>}
               <Field label="Upload remarks">{s.remarks || <span className="text-faint font-normal">—</span>}</Field>
               {/* CLIENT-HIDE: restore by removing hideStatus (status badge + reviewed_at) */}
               {!hideStatus && (
@@ -58,7 +60,7 @@ export default function SubmissionDetailView({ s, isAdmin, basePath = "", apiBas
           </div>
           <div className="card p-5">
             <div className="mb-4 font-semibold">Screenshots <span className="text-muted font-normal">({s.screenshots.length})</span></div>
-            <Gallery shots={s.screenshots} title={`${s.submission_id} · ${s.respondent_email}`} apiBase={apiBase} hideDownloads={hideDownloads} />
+            <Gallery shots={s.screenshots} title={`${s.submission_id} · ${s.respondent_email}`} apiBase={apiBase} hideDownloads={hideDownloads} hideDateTime={hideDateTime} />
           </div>
         </div>
         <div className="lg:sticky lg:top-6">

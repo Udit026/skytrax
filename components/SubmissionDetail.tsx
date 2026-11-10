@@ -6,7 +6,7 @@ import Lightbox, { type Shot } from "./Lightbox";
 import ConfirmDialog from "./ConfirmDialog";
 import { fmtBytes, fmtDateTime } from "@/lib/format";
 
-export function Gallery({ shots, title, apiBase = "/api", hideDownloads = false }: { shots: (Shot & { mime_type: string; uploaded_at: string })[]; title: string; apiBase?: string; hideDownloads?: boolean }) {
+export function Gallery({ shots, title, apiBase = "/api", hideDownloads = false, hideDateTime = false }: { shots: (Shot & { mime_type: string; uploaded_at: string })[]; title: string; apiBase?: string; hideDownloads?: boolean; hideDateTime?: boolean /* CLIENT-HIDE: restore by removing hideDateTime */ }) {
   const [open, setOpen] = useState<number | null>(null);
   return (
     <>
@@ -24,7 +24,7 @@ export function Gallery({ shots, title, apiBase = "/api", hideDownloads = false 
             <figcaption className="p-3 border-t border-line flex items-center gap-3">
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-medium truncate" title={s.original_filename}>{s.original_filename}</div>
-                <div className="text-xs text-muted">{fmtBytes(s.file_size)} · {s.mime_type.replace("image/", "").toUpperCase()}{s.width ? ` · ${s.width}×${s.height}` : ""} · {fmtDateTime(s.uploaded_at)}</div>
+                <div className="text-xs text-muted">{fmtBytes(s.file_size)} · {s.mime_type.replace("image/", "").toUpperCase()}{s.width ? ` · ${s.width}×${s.height}` : ""}{/* CLIENT-HIDE: restore by removing hideDateTime */}{!hideDateTime && <> · {fmtDateTime(s.uploaded_at)}</>}</div>
               </div>
               {/* CLIENT-HIDE: restore by removing hideDownloads / hideSubmissionDate */}
               {!hideDownloads && <a href={`${apiBase}/files/${s.id}?dl=1`} className="btn-ghost h-8 px-2.5" title="Download original"><Download className="size-4" /></a>}
@@ -32,7 +32,7 @@ export function Gallery({ shots, title, apiBase = "/api", hideDownloads = false 
           </figure>
         ))}
       </div>
-      {open !== null && <Lightbox shots={shots} index={open} title={title} apiBase={apiBase} hideDownloads={hideDownloads} onClose={() => setOpen(null)} />}
+      {open !== null && <Lightbox shots={shots} index={open} title={title} apiBase={apiBase} hideDownloads={hideDownloads} hideDateTime={hideDateTime} onClose={() => setOpen(null)} />}
     </>
   );
 }

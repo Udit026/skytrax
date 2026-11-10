@@ -7,8 +7,9 @@ import { getAnalytics } from "@/lib/analytics";
 import { fmtDateTime, fmtNum, timeAgo } from "@/lib/format";
 
 /** Overview body shared by the admin app (basePath "") and the public client view (basePath "/<slug>"). */
-export default async function OverviewView({ isAdmin, basePath = "", hideSubmissionDate = false, hideStatus = false, hideAnalytics = false }: {
+export default async function OverviewView({ isAdmin, basePath = "", hideSubmissionDate = false, hideStatus = false, hideAnalytics = false, hideChart = false }: {
   isAdmin: boolean; basePath?: string;
+  hideChart?: boolean; // CLIENT-HIDE: restore by removing hideChart
   hideSubmissionDate?: boolean; // CLIENT-HIDE: restore by removing hideSubmissionDate
   hideStatus?: boolean; // CLIENT-HIDE: restore by removing hideStatus
   hideAnalytics?: boolean; // CLIENT-HIDE: restore by removing hideAnalytics
@@ -40,8 +41,11 @@ export default async function OverviewView({ isAdmin, basePath = "", hideSubmiss
           hint={stats.lastAt ? fmtDateTime(stats.lastAt) : "No submissions yet"} />
       </div>
 
+      {/* CLIENT-HIDE: restore by removing hideChart (the whole chart/status row is skipped when both are hidden, so no empty grid or extra gap is left) */}
+      {!(hideChart && hideStatus) && (
       <div className="mt-4 grid gap-4 lg:grid-cols-3">
-        {/* CLIENT-HIDE: restore by removing hideStatus (chart goes full width when the status card is hidden) */}
+        {/* CLIENT-HIDE: restore by removing hideChart */}
+        {!hideChart && (
         <div className={`card p-5 ${hideStatus ? "lg:col-span-3" : "lg:col-span-2"}`}>
           <div className="flex items-center justify-between">
             <div>
@@ -53,6 +57,7 @@ export default async function OverviewView({ isAdmin, basePath = "", hideSubmiss
           </div>
           <div className="mt-4"><TrendArea data={analytics.daily} /></div>
         </div>
+        )}
         {/* CLIENT-HIDE: restore by removing hideStatus */}
         {!hideStatus && (
         <div className="card p-5">
@@ -72,6 +77,7 @@ export default async function OverviewView({ isAdmin, basePath = "", hideSubmiss
         </div>
         )}
       </div>
+      )}
 
       <div className="card mt-4 overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-line">

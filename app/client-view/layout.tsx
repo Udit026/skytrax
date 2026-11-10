@@ -14,14 +14,20 @@ export const metadata: Metadata = {
 /** Public, read-only client view. Served at /<CLIENT_VIEW_SLUG> via the middleware rewrite. */
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const basePath = `/${clientSlug()}`;
+  // CLIENT-HIDE: restore by removing hideAccessNote / hideAnalytics (set both to false)
+  const hideAccessNote = true;
+  const hideAnalytics = true;
   return (
     <div className="min-h-screen">
-      <ClientNav basePath={basePath} />
+      <ClientNav basePath={basePath} hideAnalytics={hideAnalytics} />
       <main className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+        {/* CLIENT-HIDE: restore by removing hideAccessNote */}
+        {!hideAccessNote && (
         <div className="mb-5 flex items-start gap-2.5 rounded-lg border border-sky-200 bg-sky-50 px-4 py-2.5 text-sm text-sky-900">
           <Eye className="size-4 mt-0.5 shrink-0" />
           <span><b>View-only access.</b> You can review every submission and screenshot, and download screenshots and reports. Changes are managed by the campaign team.</span>
         </div>
+        )}
         {children}
       </main>
     </div>

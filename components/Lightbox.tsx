@@ -6,7 +6,7 @@ import { fmtBytes, fmtDateTime } from "@/lib/format";
 export type Shot = { id: string; original_filename: string; file_size: number; width?: number | null; height?: number | null; uploaded_at?: string };
 
 /** Full-resolution viewer. Image is rendered with object-contain at its natural aspect ratio — never cropped. */
-export default function Lightbox({ shots, index, onClose, title, apiBase = "/api" }: { shots: Shot[]; index: number; onClose: () => void; title?: string; apiBase?: string }) {
+export default function Lightbox({ shots, index, onClose, title, apiBase = "/api", hideDownloads = false }: { shots: Shot[]; index: number; onClose: () => void; title?: string; apiBase?: string; hideDownloads?: boolean }) {
   const [i, setI] = useState(index);
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -35,8 +35,13 @@ export default function Lightbox({ shots, index, onClose, title, apiBase = "/api
             {shot.uploaded_at ? ` · ${fmtDateTime(shot.uploaded_at)}` : ""}{shots.length > 1 ? ` · ${i + 1} of ${shots.length}` : ""}
           </div>
         </div>
-        <a href={`${apiBase}/files/${shot.id}`} target="_blank" rel="noopener" className="btn bg-white/10 text-white hover:bg-white/20 hidden sm:inline-flex"><ExternalLink className="size-4" /> Open</a>
-        <a href={`${apiBase}/files/${shot.id}?dl=1`} className="btn bg-white text-ink hover:bg-white/90"><Download className="size-4" /> Download</a>
+        {/* CLIENT-HIDE: restore by removing hideDownloads / hideSubmissionDate */}
+        {!hideDownloads && (
+          <>
+            <a href={`${apiBase}/files/${shot.id}`} target="_blank" rel="noopener" className="btn bg-white/10 text-white hover:bg-white/20 hidden sm:inline-flex"><ExternalLink className="size-4" /> Open</a>
+            <a href={`${apiBase}/files/${shot.id}?dl=1`} className="btn bg-white text-ink hover:bg-white/90"><Download className="size-4" /> Download</a>
+          </>
+        )}
         <button onClick={onClose} className="btn bg-white/10 text-white hover:bg-white/20 px-2.5" aria-label="Close"><X className="size-5" /></button>
       </div>
       <div className="relative flex-1 min-h-0 flex items-center justify-center p-4 sm:p-8" onClick={onClose}>

@@ -7,7 +7,12 @@ import { getAnalytics } from "@/lib/analytics";
 import { fmtDateTime, fmtNum, timeAgo } from "@/lib/format";
 
 /** Overview body shared by the admin app (basePath "") and the public client view (basePath "/<slug>"). */
-export default async function OverviewView({ isAdmin, basePath = "" }: { isAdmin: boolean; basePath?: string }) {
+export default async function OverviewView({ isAdmin, basePath = "", hideSubmissionDate = false, hideStatus = false, hideAnalytics = false }: {
+  isAdmin: boolean; basePath?: string;
+  hideSubmissionDate?: boolean; // CLIENT-HIDE: restore by removing hideSubmissionDate
+  hideStatus?: boolean; // CLIENT-HIDE: restore by removing hideStatus
+  hideAnalytics?: boolean; // CLIENT-HIDE: restore by removing hideAnalytics
+}) {
   const [stats, recent, analytics] = await Promise.all([
     getOverviewStats(),
     listSubmissions({ page: 1, pageSize: 8, sort: "desc" }),
@@ -24,7 +29,7 @@ export default async function OverviewView({ isAdmin, basePath = "" }: { isAdmin
       />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
-        <StatCard label="Total submissions" value={fmtNum(stats.total)} icon={Inbox} hint={`${fmtNum(stats.pending)} awaiting review`} />
+        <StatCard label="Total submissions" value={fmtNum(stats.total)} icon={Inbox} hint={hideStatus ? undefined /* CLIENT-HIDE: restore by removing hideStatus */ : `${fmtNum(stats.pending)} awaiting review`} />
         <StatCard label="Unique email IDs" value={fmtNum(stats.uniqueEmails)} icon={Mail} tone="violet"
           hint={stats.total ? `${fmtNum(stats.total - stats.uniqueEmails)} repeat submissions` : "—"} />
         <StatCard label="Screenshots uploaded" value={fmtNum(stats.screenshots)} icon={Images} tone="sky" />
@@ -36,16 +41,20 @@ export default async function OverviewView({ isAdmin, basePath = "" }: { isAdmin
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-3">
-        <div className="card p-5 lg:col-span-2">
+        {/* CLIENT-HIDE: restore by removing hideStatus (chart goes full width when the status card is hidden) */}
+        <div className={`card p-5 ${hideStatus ? "lg:col-span-3" : "lg:col-span-2"}`}>
           <div className="flex items-center justify-between">
             <div>
               <div className="font-semibold">Submissions · last 30 days</div>
               <div className="text-xs text-muted">{fmtNum(analytics.totals.total)} in this period</div>
             </div>
-            <Link href={`${basePath}/analytics`} className="text-sm text-brand font-medium inline-flex items-center gap-1 hover:underline">Analytics <ArrowRight className="size-3.5" /></Link>
+            {/* CLIENT-HIDE: restore by removing hideAnalytics */}
+            {!hideAnalytics && <Link href={`${basePath}/analytics`} className="text-sm text-brand font-medium inline-flex items-center gap-1 hover:underline">Analytics <ArrowRight className="size-3.5" /></Link>}
           </div>
           <div className="mt-4"><TrendArea data={analytics.daily} /></div>
         </div>
+        {/* CLIENT-HIDE: restore by removing hideStatus */}
+        {!hideStatus && (
         <div className="card p-5">
           <div className="font-semibold">Verification status</div>
           <div className="text-xs text-muted">All-time</div>
@@ -61,6 +70,7 @@ export default async function OverviewView({ isAdmin, basePath = "" }: { isAdmin
             ))}
           </div>
         </div>
+        )}
       </div>
 
       <div className="card mt-4 overflow-hidden">
@@ -75,7 +85,7 @@ export default async function OverviewView({ isAdmin, basePath = "" }: { isAdmin
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead><tr><th className="th">ID</th><th className="th">Email ID</th><th className="th">Passenger</th><th className="th">Screenshots</th><th className="th">Submitted</th><th className="th">Status</th></tr></thead>
+              <thead><tr><th className="th">ID</th><th className="th">Email ID</th><th className="th">Passenger</th><th className="th">Screenshots</th>{/* CLIENT-HIDE: restore by removing hideSubmissionDate / hideStatus */}{!hideSubmissionDate && <th className="th">Submitted</th>}{!hideStatus && <th className="th">Status</th>}</tr></thead>
               <tbody>
                 {recent.rows.map((r) => (
                   <tr key={r.id} className="hover:bg-[#fafbfd]">
@@ -83,8 +93,9 @@ export default async function OverviewView({ isAdmin, basePath = "" }: { isAdmin
                     <td className="td font-medium">{r.respondent_email}</td>
                     <td className="td text-muted">{r.passenger_name || "—"}</td>
                     <td className="td tnum">{r.screenshot_count}</td>
-                    <td className="td text-muted whitespace-nowrap">{fmtDateTime(r.created_at)}</td>
-                    <td className="td"><StatusBadge status={r.status} /></td>
+                    {/* CLIENT-HIDE: restore by removing hideSubmissionDate / hideStatus */}
+                    {!hideSubmissionDate && <td className="td text-muted whitespace-nowrap">{fmtDateTime(r.created_at)}</td>}
+                    {!hideStatus && <td className="td"><StatusBadge status={r.status} /></td>}
                   </tr>
                 ))}
               </tbody>

@@ -22,7 +22,7 @@ function Thumb({ id, name, apiBase }: { id: string; name: string; apiBase: strin
     className="size-12 rounded-md object-cover border border-line bg-page" />;
 }
 
-export default function SubmissionsTable({ rows, offset, canEdit = false, basePath = "", apiBase = "/api" }: { rows: Row[]; offset: number; canEdit?: boolean; basePath?: string; apiBase?: string }) {
+export default function SubmissionsTable({ rows, offset, canEdit = false, basePath = "", apiBase = "/api", hideDownloads = false, hideSubmissionDate = false, hideStatus = false }: { rows: Row[]; offset: number; canEdit?: boolean; basePath?: string; apiBase?: string; hideDownloads?: boolean; hideSubmissionDate?: boolean; hideStatus?: boolean /* CLIENT-HIDE: restore by removing hideStatus */ }) {
   const router = useRouter();
   const [viewer, setViewer] = useState<{ shots: Shot[]; title: string } | null>(null);
   const [loadingView, setLoadingView] = useState<string | null>(null);
@@ -58,12 +58,14 @@ export default function SubmissionsTable({ rows, offset, canEdit = false, basePa
     <>
       {error && <div className="mx-4 mt-4 rounded-lg bg-red-50 border border-red-100 px-3 py-2 text-sm text-red-700 flex justify-between">{error}<button onClick={() => setError("")}>✕</button></div>}
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[1080px]">
+        {/* CLIENT-HIDE: restore by removing hideDownloads / hideSubmissionDate (narrower min-width without the date column) */}
+        <table className={`w-full ${hideSubmissionDate ? "min-w-[940px]" : "min-w-[1080px]"}`}>
           <thead>
             <tr>
               <th className="th w-12">#</th><th className="th">Email ID</th><th className="th">Passenger name</th>
               <th className="th">Screenshot</th><th className="th">Original filename</th><th className="th">File size</th>
-              <th className="th">Submission date</th><th className="th">Status</th><th className="th text-right">Action</th>
+              {/* CLIENT-HIDE: restore by removing hideDownloads / hideSubmissionDate */}
+              {!hideSubmissionDate && <th className="th">Submission date</th>}{/* CLIENT-HIDE: restore by removing hideStatus */}{!hideStatus && <th className="th">Status</th>}<th className="th text-right">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -94,8 +96,10 @@ export default function SubmissionsTable({ rows, offset, canEdit = false, basePa
                   {fmtBytes(r.first_shot_size)}
                   {r.screenshot_count > 1 && <div className="text-[11px] text-faint">{fmtBytes(r.total_size)} total</div>}
                 </td>
-                <td className="td whitespace-nowrap"><div>{fmtDate(r.created_at)}</div><div className="text-xs text-faint">{fmtTime(r.created_at)}</div></td>
-                <td className="td"><StatusBadge status={r.status} /></td>
+                {/* CLIENT-HIDE: restore by removing hideDownloads / hideSubmissionDate */}
+                {!hideSubmissionDate && <td className="td whitespace-nowrap"><div>{fmtDate(r.created_at)}</div><div className="text-xs text-faint">{fmtTime(r.created_at)}</div></td>}
+                {/* CLIENT-HIDE: restore by removing hideStatus */}
+                {!hideStatus && <td className="td"><StatusBadge status={r.status} /></td>}
                 <td className="td">
                   <div className="flex justify-end gap-1.5">
                     <Link href={`${basePath}/submissions/${r.id}`} className="btn-ghost h-8 px-2.5 text-xs"><Eye className="size-3.5" /> View</Link>
@@ -107,7 +111,7 @@ export default function SubmissionsTable({ rows, offset, canEdit = false, basePa
           </tbody>
         </table>
       </div>
-      {viewer && <Lightbox shots={viewer.shots} index={0} title={viewer.title} apiBase={apiBase} onClose={() => setViewer(null)} />}
+      {viewer && <Lightbox shots={viewer.shots} index={0} title={viewer.title} apiBase={apiBase} hideDownloads={hideDownloads} onClose={() => setViewer(null)} />}
       <ConfirmDialog open={!!toDelete} busy={deleting} title="Delete this submission?"
         body={<>This permanently removes <b>{toDelete?.submission_id}</b> ({toDelete?.respondent_email}) and its {toDelete?.screenshot_count} screenshot(s) from the database and storage. This cannot be undone.</>}
         onConfirm={confirmDelete} onCancel={() => setToDelete(null)} />

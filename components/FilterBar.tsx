@@ -3,7 +3,7 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { Search, X, Download, Loader2, ArrowDownWideNarrow, ArrowUpNarrowWide } from "lucide-react";
 
-export default function FilterBar({ total, apiBase = "/api" }: { total: number; apiBase?: string }) {
+export default function FilterBar({ total, apiBase = "/api", hideDownloads = false, hideStatus = false }: { total: number; apiBase?: string; hideDownloads?: boolean; hideStatus?: boolean /* CLIENT-HIDE: restore by removing hideStatus */ }) {
   const router = useRouter();
   const path = usePathname();
   const sp = useSearchParams();
@@ -47,12 +47,15 @@ export default function FilterBar({ total, apiBase = "/api" }: { total: number; 
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          <select className="input w-[140px]" value={sp.get("status") ?? ""} onChange={(e) => set({ status: e.target.value || null })} aria-label="Status">
-            <option value="">All statuses</option>
-            <option value="pending">Pending</option>
-            <option value="verified">Verified</option>
-            <option value="rejected">Rejected</option>
-          </select>
+          {/* CLIENT-HIDE: restore by removing hideStatus */}
+          {!hideStatus && (
+            <select className="input w-[140px]" value={sp.get("status") ?? ""} onChange={(e) => set({ status: e.target.value || null })} aria-label="Status">
+              <option value="">All statuses</option>
+              <option value="pending">Pending</option>
+              <option value="verified">Verified</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          )}
           <div className="flex items-center gap-1.5">
             <input type="date" className="input w-[150px]" value={sp.get("from") ?? ""} max={sp.get("to") ?? undefined} onChange={(e) => set({ from: e.target.value || null })} aria-label="From date" />
             <span className="text-faint text-sm">to</span>
@@ -62,9 +65,12 @@ export default function FilterBar({ total, apiBase = "/api" }: { total: number; 
             {sortAsc ? <ArrowUpNarrowWide className="size-4" /> : <ArrowDownWideNarrow className="size-4" />}{sortAsc ? "Oldest" : "Newest"}
           </button>
           {hasFilters && <button className="btn-ghost" onClick={() => { setText(""); set({ q: null, status: null, from: null, to: null, field: null }); }}><X className="size-4" /> Reset</button>}
-          {/* <a href={exportHref} className="btn-primary" title="Excel-compatible CSV of all rows matching the current filters">
-            <Download className="size-4" /> Export CSV
-          </a> */}
+          {/* CLIENT-HIDE: restore by removing hideDownloads / hideSubmissionDate */}
+          {!hideDownloads && (
+            <a href={exportHref} className="btn-primary" title="Excel-compatible CSV of all rows matching the current filters">
+              <Download className="size-4" /> Export CSV
+            </a>
+          )}
         </div>
       </div>
       <div className="mt-3 text-xs text-muted">{total.toLocaleString("en-IN")} {total === 1 ? "submission" : "submissions"} match{total === 1 ? "es" : ""}{hasFilters ? " the current filters" : ""}</div>

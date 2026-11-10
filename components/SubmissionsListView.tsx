@@ -7,8 +7,10 @@ import SubmissionsTable from "@/components/SubmissionsTable";
 import { listSubmissions, parseFilters } from "@/lib/submissions";
 
 /** All-submissions body shared by the admin app (basePath "", apiBase "/api") and the public client view. */
-export default async function SubmissionsListView({ searchParams, isAdmin, basePath = "", apiBase = "/api" }: {
+export default async function SubmissionsListView({ searchParams, isAdmin, basePath = "", apiBase = "/api", hideDownloads = false, hideSubmissionDate = false, hideStatus = false }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>; isAdmin: boolean; basePath?: string; apiBase?: string;
+  hideDownloads?: boolean; hideSubmissionDate?: boolean; // CLIENT-HIDE: restore by removing hideDownloads / hideSubmissionDate
+  hideStatus?: boolean; // CLIENT-HIDE: restore by removing hideStatus
 }) {
   const raw = await searchParams;
   const sp = new URLSearchParams();
@@ -21,7 +23,7 @@ export default async function SubmissionsListView({ searchParams, isAdmin, baseP
     <>
       <PageHeader title="All submissions" subtitle={isAdmin ? "Search, review and export survey submissions." : "Search and review survey submissions, view and download screenshots."}
         actions={isAdmin ? <Link href="/upload" className="btn-primary"><UploadCloud className="size-4" /> Upload submission</Link> : undefined} />
-      <FilterBar total={data.total} apiBase={apiBase} />
+      <FilterBar total={data.total} apiBase={apiBase} hideDownloads={hideDownloads} hideStatus={hideStatus} />
       <div className="card mt-4 overflow-hidden">
         {data.rows.length === 0 ? (
           filtered
@@ -30,7 +32,7 @@ export default async function SubmissionsListView({ searchParams, isAdmin, baseP
                 action={isAdmin ? <Link href="/upload" className="btn-primary"><UploadCloud className="size-4" /> Upload submission</Link> : undefined} />
         ) : (
           <>
-            <SubmissionsTable rows={data.rows} offset={(data.page - 1) * data.pageSize} canEdit={isAdmin} basePath={basePath} apiBase={apiBase} />
+            <SubmissionsTable rows={data.rows} offset={(data.page - 1) * data.pageSize} canEdit={isAdmin} basePath={basePath} apiBase={apiBase} hideDownloads={hideDownloads} hideSubmissionDate={hideSubmissionDate} hideStatus={hideStatus} />
             <Pagination page={data.page} pageSize={data.pageSize} total={data.total} />
           </>
         )}

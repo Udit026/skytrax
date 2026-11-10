@@ -6,7 +6,7 @@ import Lightbox, { type Shot } from "./Lightbox";
 import ConfirmDialog from "./ConfirmDialog";
 import { fmtBytes, fmtDateTime } from "@/lib/format";
 
-export function Gallery({ shots, title, apiBase = "/api" }: { shots: (Shot & { mime_type: string; uploaded_at: string })[]; title: string; apiBase?: string }) {
+export function Gallery({ shots, title, apiBase = "/api", hideDownloads = false }: { shots: (Shot & { mime_type: string; uploaded_at: string })[]; title: string; apiBase?: string; hideDownloads?: boolean }) {
   const [open, setOpen] = useState<number | null>(null);
   return (
     <>
@@ -26,12 +26,13 @@ export function Gallery({ shots, title, apiBase = "/api" }: { shots: (Shot & { m
                 <div className="text-sm font-medium truncate" title={s.original_filename}>{s.original_filename}</div>
                 <div className="text-xs text-muted">{fmtBytes(s.file_size)} · {s.mime_type.replace("image/", "").toUpperCase()}{s.width ? ` · ${s.width}×${s.height}` : ""} · {fmtDateTime(s.uploaded_at)}</div>
               </div>
-              <a href={`${apiBase}/files/${s.id}?dl=1`} className="btn-ghost h-8 px-2.5" title="Download original"><Download className="size-4" /></a>
+              {/* CLIENT-HIDE: restore by removing hideDownloads / hideSubmissionDate */}
+              {!hideDownloads && <a href={`${apiBase}/files/${s.id}?dl=1`} className="btn-ghost h-8 px-2.5" title="Download original"><Download className="size-4" /></a>}
             </figcaption>
           </figure>
         ))}
       </div>
-      {open !== null && <Lightbox shots={shots} index={open} title={title} apiBase={apiBase} onClose={() => setOpen(null)} />}
+      {open !== null && <Lightbox shots={shots} index={open} title={title} apiBase={apiBase} hideDownloads={hideDownloads} onClose={() => setOpen(null)} />}
     </>
   );
 }

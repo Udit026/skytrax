@@ -7,8 +7,10 @@ import { getAnalytics } from "@/lib/analytics";
 import { fmtDateTime, fmtNum, timeAgo } from "@/lib/format";
 
 /** Overview body shared by the admin app (basePath "") and the public client view (basePath "/<slug>"). */
-export default async function OverviewView({ isAdmin, basePath = "", hideSubmissionDate = false, hideStatus = false, hideAnalytics = false, hideChart = false }: {
+export default async function OverviewView({ isAdmin, basePath = "", hideSubmissionDate = false, hideStatus = false, hideAnalytics = false, hideChart = false, hideTodayCard = false, hideLastSubmissionCard = false }: {
   isAdmin: boolean; basePath?: string;
+  hideTodayCard?: boolean; // CLIENT-HIDE: restore by removing hideTodayCard
+  hideLastSubmissionCard?: boolean; // CLIENT-HIDE: restore by removing hideLastSubmissionCard
   hideChart?: boolean; // CLIENT-HIDE: restore by removing hideChart
   hideSubmissionDate?: boolean; // CLIENT-HIDE: restore by removing hideSubmissionDate
   hideStatus?: boolean; // CLIENT-HIDE: restore by removing hideStatus
@@ -29,16 +31,21 @@ export default async function OverviewView({ isAdmin, basePath = "", hideSubmiss
         actions={isAdmin ? <Link href="/upload" className="btn-primary"><UploadCloud className="size-4" /> Upload submission</Link> : undefined}
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
+      {/* CLIENT-HIDE: restore by removing hideTodayCard / hideLastSubmissionCard (4-column grid when both cards are hidden) */}
+      <div className={`grid gap-4 sm:grid-cols-2 ${hideTodayCard && hideLastSubmissionCard ? "xl:grid-cols-4" : "xl:grid-cols-3 2xl:grid-cols-6"}`}>
         <StatCard label="Total submissions" value={fmtNum(stats.total)} icon={Inbox} hint={hideStatus ? undefined /* CLIENT-HIDE: restore by removing hideStatus */ : `${fmtNum(stats.pending)} awaiting review`} />
         <StatCard label="Unique email IDs" value={fmtNum(stats.uniqueEmails)} icon={Mail} tone="violet"
           hint={stats.total ? `${fmtNum(stats.total - stats.uniqueEmails)} repeat submissions` : "—"} />
         <StatCard label="Screenshots uploaded" value={fmtNum(stats.screenshots)} icon={Images} tone="sky" />
-        <StatCard label="Today" value={fmtNum(stats.today)} icon={CalendarCheck} tone="emerald" hint="Since midnight IST" />
+        {/* CLIENT-HIDE: restore by removing hideTodayCard */}
+        {!hideTodayCard && <StatCard label="Today" value={fmtNum(stats.today)} icon={CalendarCheck} tone="emerald" hint="Since midnight IST" />}
         <StatCard label="This month" value={fmtNum(stats.month)} icon={CalendarRange} tone="amber" />
+        {/* CLIENT-HIDE: restore by removing hideLastSubmissionCard */}
+        {!hideLastSubmissionCard && (
         <StatCard label="Last submission" icon={Clock} tone="slate"
           value={<span className="text-lg">{stats.lastAt ? timeAgo(stats.lastAt) : "—"}</span>}
           hint={stats.lastAt ? fmtDateTime(stats.lastAt) : "No submissions yet"} />
+        )}
       </div>
 
       {/* CLIENT-HIDE: restore by removing hideChart (the whole chart/status row is skipped when both are hidden, so no empty grid or extra gap is left) */}
